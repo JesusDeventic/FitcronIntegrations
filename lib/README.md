@@ -1,54 +1,68 @@
 # Estructura de lib/
 
-Este directorio contiene la estructura principal de la app **Fitcron Integrations Lab**.
-Actualmente incluye un esquema inicial funcional con **Provider** y una pantalla de ejemplo.
+Este directorio contiene la arquitectura principal de la app **Fitcron Integrations Lab**.
+
+Actualmente el proyecto incluye:
+
+- Navegación entre pantallas (Fase 2)
+- Detección de plataforma Android/iOS (Fase 3)
+- Uso de Provider para gestión de estado (base preparada)
 
 ---
 
 ## screens/
 
-Aquí se colocarán las pantallas de la app (UI).
+Aquí se encuentran las pantallas de la aplicación (UI).
 
-Actualmente hay:
+Pantallas implementadas:
 
-- `example_screen.dart` → pantalla de ejemplo usando Provider para manejar datos de salud
-- Futura implementación:
-  - `selection_screen.dart`
-  - `permissions_screen.dart`
-  - `sync_screen.dart`
-  - `results_screen.dart`
-  - `export_screen.dart`
+- `selection_screen.dart` → Selección de fuente de datos (detecta plataforma)
+- `permissions_screen.dart` → Gestión de permisos (placeholder)
+- `sync_screen.dart` → Sincronización de datos (placeholder)
+- `results_screen.dart` → Visualización de resultados (placeholder)
+- `export_screen.dart` → Exportación de datos (placeholder)
+
+📌 Estado actual:
+
+- Navegación completamente funcional
+- Contenido aún en desarrollo (placeholders)
 
 ---
 
 ## services/
 
-Aquí va la lógica de conexión con Apple Health y Health Connect.
+Contiene la lógica de comunicación con el sistema y APIs externas.
 
-Actualmente no hay servicios implementados, pero se planean:
+Actualmente:
 
-- `health_service.dart`
-- `permission_service.dart`
+- `platform_service.dart` → Detecta si el dispositivo es Android o iOS
+
+🔜 Futuro:
+
+- `health_service.dart` → Conexión con Apple Health / Health Connect
+- `permission_service.dart` → Gestión de permisos de usuario
 
 ---
 
 ## models/
 
-Define cómo se ven los datos dentro de la app.
+Define la estructura de los datos dentro de la app.
 
-Ejemplos planeados:
+🔜 Próximamente:
 
 - `health_data.dart`
 - `activity_data.dart`
 - `sleep_data.dart`
 
+📌 Aquí se implementará la normalización de datos (Fase 7)
+
 ---
 
 ## utils/
 
-Funciones auxiliares utilizadas en varias partes de la app.
+Funciones auxiliares reutilizables.
 
-Ejemplos planeados:
+🔜 Próximamente:
 
 - `date_utils.dart`
 - `json_utils.dart`
@@ -56,6 +70,19 @@ Ejemplos planeados:
 
 ---
 
-⚠️ Nota:  
-Todos los archivos actuales son **esquemas iniciales y placeholders**, con comentarios explicativos.  
-Se irán completando en fases posteriores con la lógica real de la app.
+## 📌 Estado actual del proyecto
+
+✔️ Fase 1 — Preparación → COMPLETADA  
+✔️ Fase 2 — Navegación → COMPLETADA  
+✔️ Fase 3 — Detección de plataforma → COMPLETADA
+
+🚧 En desarrollo:
+
+- Fase 4 — Permisos
+
+---
+
+## ⚠️ Nota
+
+La mayoría de pantallas contienen **placeholders** con comentarios explicativos.  
+La lógica real se implementará progresivamente en las siguientes fases del proyecto.

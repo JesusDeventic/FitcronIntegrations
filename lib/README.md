@@ -6,6 +6,7 @@ Actualmente el proyecto incluye:
 
 - Navegación entre pantallas (Fase 2)
 - Detección de plataforma Android/iOS (Fase 3)
+- Simulación de gestión de permisos (Fase 4)
 - Uso de Provider para gestión de estado (base preparada)
 
 ---
@@ -17,7 +18,7 @@ Aquí se encuentran las pantallas de la aplicación (UI).
 Pantallas implementadas:
 
 - `selection_screen.dart` → Selección de fuente de datos (detecta plataforma)
-- `permissions_screen.dart` → Gestión de permisos (placeholder)
+- `permissions_screen.dart` → Gestión de permisos (simulación funcional)
 - `sync_screen.dart` → Sincronización de datos (placeholder)
 - `results_screen.dart` → Visualización de resultados (placeholder)
 - `export_screen.dart` → Exportación de datos (placeholder)
@@ -25,7 +26,8 @@ Pantallas implementadas:
 📌 Estado actual:
 
 - Navegación completamente funcional
-- Contenido aún en desarrollo (placeholders)
+- Permisos simulados con interacción real de usuario
+- Contenido de datos aún en desarrollo
 
 ---
 
@@ -36,11 +38,11 @@ Contiene la lógica de comunicación con el sistema y APIs externas.
 Actualmente:
 
 - `platform_service.dart` → Detecta si el dispositivo es Android o iOS
+- `permission_service.dart` → Gestiona el estado de permisos (simulado)
 
 🔜 Futuro:
 
 - `health_service.dart` → Conexión con Apple Health / Health Connect
-- `permission_service.dart` → Gestión de permisos de usuario
 
 ---
 
@@ -74,15 +76,16 @@ Funciones auxiliares reutilizables.
 
 ✔️ Fase 1 — Preparación → COMPLETADA  
 ✔️ Fase 2 — Navegación → COMPLETADA  
-✔️ Fase 3 — Detección de plataforma → COMPLETADA
+✔️ Fase 3 — Detección de plataforma → COMPLETADA  
+✔️ Fase 4 — Permisos (simulación) → COMPLETADA
 
 🚧 En desarrollo:
 
-- Fase 4 — Permisos
+- Fase 5 — Conexión con el HUB (Health APIs)
 
 ---
 
 ## ⚠️ Nota
 
-La mayoría de pantallas contienen **placeholders** con comentarios explicativos.  
-La lógica real se implementará progresivamente en las siguientes fases del proyecto.
+La aplicación ya incluye una simulación funcional del flujo de permisos.  
+Las siguientes fases integrarán APIs reales y procesamiento de datos de salud.

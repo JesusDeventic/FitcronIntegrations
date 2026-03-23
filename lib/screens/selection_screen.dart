@@ -49,8 +49,6 @@ class SelectionScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
 
-            const SizedBox(height: 30),
-            const Text('Placeholder for sync screen'),
             const SizedBox(height: 20),
 
             /// Botón para continuar a permisos

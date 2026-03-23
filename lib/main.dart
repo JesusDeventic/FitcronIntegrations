@@ -2,22 +2,26 @@
 // ======================
 //
 // Punto de entrada de la app Flutter
-// Ejemplo inicial para Fase 1 con Provider
+// Fase 2: navegación básica entre pantallas
 //
-// ⚠️ Nota: Este código es un esquema inicial.
-// En futuras mejoras se añadirá:
-//   • Conexión con Apple Health / Health Connect
-//   • Pantallas reales (selection, permissions, sync, results, export)
-//   • Modelos de datos completos y normalización
-//   • Exportación de datos en JSON
+// ⚠️ Nota: Todavía placeholders, sin lógica real de Health APIs
+// Se añadirá contenido y datos reales en Fases posteriores
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// Importar provider
 import 'providers/app_state_provider.dart';
-import 'screens/example_screen.dart'; // Importamos la pantalla de ejemplo
+
+// Importar las pantallas base
+import 'screens/selection_screen.dart';
+import 'screens/permissions_screen.dart';
+import 'screens/sync_screen.dart';
+import 'screens/results_screen.dart';
+import 'screens/export_screen.dart';
 
 void main() {
-  // Inicializamos Provider para que AppStateProvider esté disponible globalmente
+  // Inicializamos Provider para el estado global
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppStateProvider(),
@@ -33,8 +37,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Fitcron Integrations Lab',
-      // Mostramos directamente la pantalla de ejemplo
-      home: const ExampleScreen(),
+      debugShowCheckedModeBanner: false, // Quitar banner de debug
+      initialRoute: '/', // Pantalla inicial
+      routes: {
+        '/': (context) => const SelectionScreen(),
+        '/permissions': (context) => const PermissionsScreen(),
+        '/sync': (context) => const SyncScreen(),
+        '/results': (context) => const ResultsScreen(),
+        '/export': (context) => const ExportScreen(),
+      },
     );
   }
 }

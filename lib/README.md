@@ -24,8 +24,8 @@ Pantallas implementadas:
 - `permissions_screen.dart` → Gestión de permisos (simulación funcional)
 - `sync_screen.dart` → Sincronización de datos:
   - Inicializa conexión simulada
-  - Lee datos simulados
-  - Normaliza datos
+  - Lee datos simulados desde `HealthReadService`
+  - Normaliza datos con `HealthNormalizeService`
   - Muestra datos de hoy y últimos 7 días
 - `results_screen.dart` → Visualización de resultados (placeholder)
 - `export_screen.dart` → Exportación de datos (placeholder)
@@ -35,8 +35,8 @@ Pantallas implementadas:
 - Navegación completamente funcional
 - Permisos simulados con interacción real de usuario
 - Conexión simulada a plataforma de salud
-- Lectura de datos simulada desde `HealthReadService`
-- Normalización de datos mediante `HealthNormalizeService`
+- Lectura de datos simulada
+- Normalización de datos a formato uniforme
 - Visualización directa de datos en `sync_screen.dart` (sin almacenamiento global)
 - Contenido de resultados y exportación aún en desarrollo
 
@@ -51,7 +51,9 @@ Actualmente:
 - `platform_service.dart` → Detecta si el dispositivo es Android o iOS
 - `permission_service.dart` → Gestiona el estado de permisos (simulado)
 - `health_read_service.dart` → Simula la lectura de datos de salud
-- `health_normalize_service.dart` → Normaliza los datos a un formato estándar
+- `health_normalize_service.dart` → Normaliza los datos a un formato estándar usando:
+  - `HealthUtils` → redondeo y conversiones
+  - `DateUtilsCustom` → fechas consistentes
 
 🔜 Futuro:
 
@@ -87,6 +89,17 @@ Actualmente:
 
 - No se utiliza aún para almacenar datos de salud
 - Se integrará en futuras fases
+
+---
+
+## utils/
+
+Funciones auxiliares reutilizables para la normalización y manejo de datos.
+
+Actualmente:
+
+- `health_utils.dart` → Redondeo de valores y conversión de metros a kilómetros
+- `date_utils.dart` → Manejo y formateo de fechas (YYYY-MM-DD, días atrás)
 
 ---
 

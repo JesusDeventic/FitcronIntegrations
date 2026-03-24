@@ -3,50 +3,49 @@
 //
 // Servicio encargado de normalizar datos de salud.
 // Recibe datos "crudos" de HealthReadService y los convierte
-// a lista de DailyHealthData.
+// a una lista de DailyHealthData.
 //
 // OBJETIVO (Fase 7):
-// Tener un formato único y consistente antes de usar o mostrar los datos.
+// Tener un formato único, consistente y reutilizable.
+//
+// MEJORAS IMPLEMENTADAS:
+// - Uso de HealthUtils para redondeo de valores
+// - Uso de DateUtilsCustom para manejo de fechas
+// - Código limpio y preparado para APIs reales
 //
 // FUTURO:
-// - Podremos usar la misma lógica para datos reales de Health Connect o Apple Health
-// - Facilitar exportaciones, visualización y procesamiento de datos
+// - Compatible con Apple Health / Health Connect
+// - Facilita exportación, visualización y análisis
 
 import '../models/daily_health_data.dart';
+import '../utils/health_utils.dart';
+import '../utils/date_utils.dart';
 
 class HealthNormalizeService {
   /// Normaliza los datos simulados
-  ///
-  /// rawData: {
-  ///   "steps": [int, int, ...],
-  ///   "distance_km": [double, double, ...],
-  ///   "calories": [int, int, ...],
-  ///   "sleep_hours": [double, double, ...],
-  ///   "heart_rate": [int, int, ...]
-  /// }
-  ///
-  /// Devuelve lista de DailyHealthData con fechas asignadas desde hoy hacia atrás
   static List<DailyHealthData> normalize(Map<String, dynamic> rawData) {
-    final today = DateTime.now();
-
-    // Extraemos listas de cada tipo de dato, o usamos lista vacía si falta
+    // Extraemos listas con conversión segura
     final stepsList = (rawData["steps"] as List<dynamic>?)?.cast<int>() ?? [];
+
     final distanceList =
         (rawData["distance_km"] as List<dynamic>?)
             ?.map((e) => (e as num).toDouble())
             .toList() ??
         [];
+
     final caloriesList =
         (rawData["calories"] as List<dynamic>?)?.cast<int>() ?? [];
+
     final sleepList =
         (rawData["sleep_hours"] as List<dynamic>?)
             ?.map((e) => (e as num).toDouble())
             .toList() ??
         [];
+
     final heartRateList =
         (rawData["heart_rate"] as List<dynamic>?)?.cast<int>() ?? [];
 
-    // Número de días a normalizar: máximo entre todas las listas
+    // Determinamos el número máximo de días disponibles
     final int days = [
       stepsList.length,
       distanceList.length,
@@ -58,17 +57,35 @@ class HealthNormalizeService {
     List<DailyHealthData> normalized = [];
 
     for (int i = 0; i < days; i++) {
+      // 🔹 Obtener fecha usando utils
+      final dateObj = DateUtilsCustom.getDateDaysAgo(i);
+
+      // 🔹 Aplicar utils para formateo y redondeo
+      final String formattedDate = DateUtilsCustom.formatDate(dateObj);
+
+      final int steps = i < stepsList.length ? stepsList[i] : 0;
+
+      final double distance = i < distanceList.length
+          ? HealthUtils.roundDouble(distanceList[i], 2)
+          : 0.0;
+
+      final int calories = i < caloriesList.length ? caloriesList[i] : 0;
+
+      final double sleep = i < sleepList.length
+          ? HealthUtils.roundDouble(sleepList[i], 1)
+          : 0.0;
+
+      final int heartRate = i < heartRateList.length ? heartRateList[i] : 0;
+
+      // 🔹 Crear objeto normalizado
       normalized.add(
         DailyHealthData(
-          date: today
-              .subtract(Duration(days: i))
-              .toIso8601String()
-              .split('T')[0], // YYYY-MM-DD
-          steps: i < stepsList.length ? stepsList[i] : 0,
-          distanceKm: i < distanceList.length ? distanceList[i] : 0.0,
-          calories: i < caloriesList.length ? caloriesList[i] : 0,
-          sleepHours: i < sleepList.length ? sleepList[i] : 0.0,
-          heartRate: i < heartRateList.length ? heartRateList[i] : 0,
+          date: formattedDate, // YYYY-MM-DD
+          steps: steps,
+          distanceKm: distance,
+          calories: calories,
+          sleepHours: sleep,
+          heartRate: heartRate,
         ),
       );
     }

@@ -7,6 +7,7 @@ Actualmente el proyecto incluye:
 - Navegación entre pantallas (Fase 2)
 - Detección de plataforma Android/iOS (Fase 3)
 - Simulación de gestión de permisos (Fase 4)
+- Simulación de conexión con Health APIs (Fase 5)
 - Uso de Provider para gestión de estado (base preparada)
 
 ---
@@ -19,7 +20,7 @@ Pantallas implementadas:
 
 - `selection_screen.dart` → Selección de fuente de datos (detecta plataforma)
 - `permissions_screen.dart` → Gestión de permisos (simulación funcional)
-- `sync_screen.dart` → Sincronización de datos (placeholder)
+- `sync_screen.dart` → Sincronización de datos (simulación de conexión y lectura)
 - `results_screen.dart` → Visualización de resultados (placeholder)
 - `export_screen.dart` → Exportación de datos (placeholder)
 
@@ -27,7 +28,9 @@ Pantallas implementadas:
 
 - Navegación completamente funcional
 - Permisos simulados con interacción real de usuario
-- Contenido de datos aún en desarrollo
+- Conexión simulada a plataforma de salud
+- Lectura de datos simulada usando `AppStateProvider`
+- Contenido de resultados y exportación aún en desarrollo
 
 ---
 
@@ -43,6 +46,18 @@ Actualmente:
 🔜 Futuro:
 
 - `health_service.dart` → Conexión con Apple Health / Health Connect
+- Gestión real de sincronización y lectura de datos
+
+---
+
+## providers/
+
+Gestión de estado de la app usando Provider.
+
+Actualmente:
+
+- `app_state_provider.dart` → Maneja datos de ejemplo (pasos) y permite actualizar la UI
+- Se usará para integrar los datos de Health APIs en fases futuras
 
 ---
 
@@ -77,15 +92,24 @@ Funciones auxiliares reutilizables.
 ✔️ Fase 1 — Preparación → COMPLETADA  
 ✔️ Fase 2 — Navegación → COMPLETADA  
 ✔️ Fase 3 — Detección de plataforma → COMPLETADA  
-✔️ Fase 4 — Permisos (simulación) → COMPLETADA
+✔️ Fase 4 — Permisos (simulación) → COMPLETADA  
+✔️ Fase 5 — Conexión y lectura de datos (simulación) → COMPLETADA
 
 🚧 En desarrollo:
 
-- Fase 5 — Conexión con el HUB (Health APIs)
+- Fase 6 — Lectura real de datos
+- Fase 7 — Normalización y modelos completos
+- Fase 8+ — Procesamiento, visualización y exportación
 
 ---
 
 ## ⚠️ Nota
 
-La aplicación ya incluye una simulación funcional del flujo de permisos.  
-Las siguientes fases integrarán APIs reales y procesamiento de datos de salud.
+La aplicación ya incluye:
+
+- Verificación de permisos antes de conectarse
+- Mensajes claros si el usuario no ha concedido permisos
+- Simulación de conexión con la plataforma de salud
+- Simulación de lectura de datos actualizando `AppStateProvider`
+
+Las siguientes fases integrarán APIs reales y procesamiento completo de datos de salud.

@@ -31,11 +31,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   String getStatusText() {
     switch (status) {
       case PermissionStatus.granted:
-        return "Permisos concedidos";
+        return "Permission granted";
       case PermissionStatus.denied:
-        return "Permisos denegados";
+        return "Permission denied";
       default:
-        return "Permisos no solicitados";
+        return "Permission not requested";
     }
   }
 
@@ -49,7 +49,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           children: [
             /// Explicación al usuario
             const Text(
-              "La app necesita acceso a tus datos de salud para funcionar correctamente.",
+              "The app needs access to your health data to function correctly.",
               textAlign: TextAlign.center,
             ),
 
@@ -66,7 +66,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                 PermissionService.grantPermission();
                 updateStatus();
               },
-              child: const Text('Permitir'),
+              child: const Text('Allow'),
             ),
 
             const SizedBox(height: 10),
@@ -77,7 +77,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                 PermissionService.denyPermission();
                 updateStatus();
               },
-              child: const Text('Denegar'),
+              child: const Text('Deny'),
             ),
 
             const SizedBox(height: 30),

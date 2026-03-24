@@ -1,27 +1,23 @@
 // sync_screen.dart
 // ======================
 //
-// Pantalla de sincronización
+// Pantalla de sincronización (Fase 7)
 //
-// OBJETIVO (Fase 6):
-// Mostrar datos simulados de salud (hoy + últimos 7 días)
-// usando HealthReadService para probar lectura antes de integrar APIs reales.
+// OBJETIVO:
+// - Leer datos simulados
+// - Normalizarlos
+// - Mostrar datos de hoy y últimos 7 días
 //
-// IMPORTANTE:
-// - No se usan cards ni UI final
-// - Solo mostramos los datos en texto organizado
-// - Permisos y conexión simulada como en Fase 5
-//
-// FUTURO:
-// - Presentación en ResultScreen con cards y gráficos
-// - Lectura real desde Health Connect / Apple Health
+// MEJORAS:
+// - Botones centrados y con ancho completo
+// - UI más limpia y consistente
 
 import 'package:flutter/material.dart';
 import '../services/permission_service.dart';
 import '../services/platform_service.dart';
 import '../services/health_read_service.dart';
-import '../providers/app_state_provider.dart';
-import 'package:provider/provider.dart';
+import '../services/health_normalize_service.dart';
+import '../models/daily_health_data.dart';
 
 class SyncScreen extends StatefulWidget {
   const SyncScreen({super.key});
@@ -31,23 +27,21 @@ class SyncScreen extends StatefulWidget {
 }
 
 class _SyncScreenState extends State<SyncScreen> {
-  // Estado de conexión simulada
+  String statusMessage = "";
   bool isConnected = false;
 
-  // Mensaje de estado general
-  String statusMessage = "";
+  List<DailyHealthData> normalizedData = [];
+  DailyHealthData? todayData;
 
-  // Datos simulados leídos
-  Map<String, dynamic>? healthData;
-
-  /// Inicializa la conexión simulada
+  /// Inicializa conexión simulada
   void initializeConnection() {
     final permissionStatus = PermissionService.getStatus();
+
     if (permissionStatus != PermissionStatus.granted) {
       setState(() {
         isConnected = false;
         statusMessage =
-            "You don't have permission to access health data.\nPlease enable permissions on the Permissions screen.";
+            "You don't have permission to access health data.\nPlease enable permissions.";
       });
       return;
     }
@@ -65,12 +59,12 @@ class _SyncScreenState extends State<SyncScreen> {
     });
   }
 
-  /// Lee los datos simulados desde HealthReadService
-  Future<void> readHealthData() async {
+  /// Lee datos simulados y normaliza
+  Future<void> readAndNormalizeData() async {
     if (!isConnected) {
       setState(() {
         statusMessage =
-            "Cannot read data without connection.\nEnable permissions and connect first.";
+            "Cannot read data without connection.\nEnable permissions first.";
       });
       return;
     }
@@ -79,54 +73,29 @@ class _SyncScreenState extends State<SyncScreen> {
       statusMessage = "Reading data...";
     });
 
-    final data = await HealthReadService.readLast7Days();
+    final rawData = await HealthReadService.readLast7Days();
+    final normalized = HealthNormalizeService.normalize(rawData);
+
+    final today = DateTime.now();
+    final todayString =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+    DailyHealthData? todayEntry;
+    List<DailyHealthData> last7Days = [];
+
+    for (var data in normalized) {
+      if (data.date == todayString) {
+        todayEntry = data;
+      } else {
+        last7Days.add(data);
+      }
+    }
 
     setState(() {
-      healthData = data;
-      statusMessage = "Data read successfully";
+      todayData = todayEntry;
+      normalizedData = last7Days;
+      statusMessage = "Data read and normalized successfully.";
     });
-
-    // Actualizamos el estado global (opcional)
-    final appState = Provider.of<AppStateProvider>(context, listen: false);
-    appState.updateSteps(data['steps'].last); // pasos de hoy
-  }
-
-  /// Genera una fila de texto para mostrar datos de hoy
-  Widget buildTodayData() {
-    if (healthData == null) return const SizedBox();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "📌 Today's Data:",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text("Steps: ${healthData!['steps'].last}"),
-        Text("Distance (km): ${healthData!['distance_km'].last}"),
-        Text("Calories: ${healthData!['calories'].last}"),
-        Text("Sleep hours: ${healthData!['sleep_hours'].last}"),
-        Text("Heart rate: ${healthData!['heart_rate'].last}"),
-      ],
-    );
-  }
-
-  /// Genera texto para los últimos 7 días
-  Widget buildLast7DaysData() {
-    if (healthData == null) return const SizedBox();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-        const Text(
-          "📌 Last 7 Days:",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        for (int i = 0; i < 7; i++)
-          Text(
-            "Day ${i + 1}: Steps=${healthData!['steps'][i]}, Distance=${healthData!['distance_km'][i]}km, Calories=${healthData!['calories'][i]}, Sleep=${healthData!['sleep_hours'][i]}h, HR=${healthData!['heart_rate'][i]}",
-          ),
-      ],
-    );
   }
 
   @override
@@ -137,31 +106,26 @@ class _SyncScreenState extends State<SyncScreen> {
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                "Here you can sync your health data with the appropriate platform.",
+                "Here you can sync your health data.",
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 20),
 
-              // Botón inicializar conexión
-              ElevatedButton(
-                onPressed: initializeConnection,
-                child: const Text('Initialize Connection'),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Botón leer datos
-              ElevatedButton(
-                onPressed: readHealthData,
-                child: const Text('Read Data (Simulation)'),
+              // 🔹 Botón conexión
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: initializeConnection,
+                  child: const Text('Initialize Connection'),
+                ),
               ),
 
               const SizedBox(height: 20),
 
-              // Mensaje de estado
+              // 🔹 Mensaje de estado
               Text(
                 statusMessage,
                 style: TextStyle(
@@ -173,20 +137,52 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 20),
 
-              // Mostrar datos de hoy
-              buildTodayData(),
-
-              // Mostrar datos últimos 7 días
-              buildLast7DaysData(),
+              // 🔹 Botón leer datos
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: readAndNormalizeData,
+                  child: const Text('Read & Normalize Data'),
+                ),
+              ),
 
               const SizedBox(height: 30),
 
-              // Navegación a resultados
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/results');
-                },
-                child: const Text('Go to Results'),
+              // 📌 Datos de hoy
+              if (todayData != null) ...[
+                const Text(
+                  "📌 Today",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "Steps: ${todayData!.steps}, Distance: ${todayData!.distanceKm} km, Calories: ${todayData!.calories}, Sleep: ${todayData!.sleepHours} h, Heart Rate: ${todayData!.heartRate} bpm",
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // 📅 Últimos 7 días
+              if (normalizedData.isNotEmpty) ...[
+                const Text(
+                  "📅 Last 7 days",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                for (var data in normalizedData)
+                  Text(
+                    "${data.date} → Steps: ${data.steps}, Distance: ${data.distanceKm} km, Calories: ${data.calories}, Sleep: ${data.sleepHours} h, Heart Rate: ${data.heartRate} bpm",
+                  ),
+              ],
+
+              const SizedBox(height: 30),
+
+              // 🔹 Botón navegación
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/results');
+                  },
+                  child: const Text('Go to Results'),
+                ),
               ),
             ],
           ),

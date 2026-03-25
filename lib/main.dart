@@ -4,7 +4,7 @@
 // Punto de entrada de la app Flutter
 // Fase 2: navegación básica entre pantallas
 //
-// ⚠️ Nota: Todavía placeholders, sin lógica real de Health APIs
+// Nota: Todavía placeholders, sin lógica real de Health APIs
 // Se añadirá contenido y datos reales en Fases posteriores
 
 import 'package:flutter/material.dart';

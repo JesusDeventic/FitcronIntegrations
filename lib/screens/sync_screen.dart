@@ -1,22 +1,36 @@
 // sync_screen.dart
 // ======================
 //
-// Pantalla de sincronización (Fase 7)
+// Pantalla de sincronización
+//
+// FASE 7:
+// - Lectura de datos simulados (HealthReadService)
+// - Normalización de datos (HealthNormalizeService)
+//
+// FASE 8:
+// - Procesamiento de datos (HealthProcessingService)
+// - Cálculo de totales, promedios y métricas útiles
 //
 // OBJETIVO:
-// - Leer datos simulados
-// - Normalizarlos
-// - Mostrar datos de hoy y últimos 7 días
+// Mostrar:
+// - Datos de hoy
+// - Datos de los últimos 7 días
+// - Datos procesados (totales y medias)
 //
-// MEJORAS:
-// - Botones centrados y con ancho completo
-// - UI más limpia y consistente
+// IMPORTANTE:
+// - No se usan cards todavía (UI simple para validación)
+// - No se guarda estado global (Provider aún no se usa)
 
 import 'package:flutter/material.dart';
+
+// Servicios
 import '../services/permission_service.dart';
 import '../services/platform_service.dart';
 import '../services/health_read_service.dart';
 import '../services/health_normalize_service.dart';
+import '../services/health_processing_service.dart';
+
+// Modelo
 import '../models/daily_health_data.dart';
 
 class SyncScreen extends StatefulWidget {
@@ -27,16 +41,30 @@ class SyncScreen extends StatefulWidget {
 }
 
 class _SyncScreenState extends State<SyncScreen> {
+  // Mensaje de estado que se muestra en pantalla
   String statusMessage = "";
+
+  // Indica si la conexión con la plataforma de salud está activa
   bool isConnected = false;
 
+  // Lista de datos normalizados (últimos 7 días SIN incluir hoy)
   List<DailyHealthData> normalizedData = [];
+
+  // Datos de hoy (se separan para mostrarlos en una sola fila)
   DailyHealthData? todayData;
 
-  /// Inicializa conexión simulada
+  // Datos procesados (Fase 8)
+  // Contendrá totales, promedios, etc.
+  Map<String, dynamic> processedData = {};
+
+  /// ============================================
+  /// Inicializa conexión simulada con Health API
+  /// ============================================
   void initializeConnection() {
+    // Obtener estado de permisos (simulado)
     final permissionStatus = PermissionService.getStatus();
 
+    // Si NO hay permisos → no conectar
     if (permissionStatus != PermissionStatus.granted) {
       setState(() {
         isConnected = false;
@@ -46,20 +74,25 @@ class _SyncScreenState extends State<SyncScreen> {
       return;
     }
 
+    // Detectar plataforma (Android / iOS)
     final platform = PlatformService.getPlatform();
+
     String platformName = platform == AppPlatform.android
         ? "Health Connect (Android)"
         : platform == AppPlatform.ios
         ? "Apple Health (iOS)"
         : "Unknown platform";
 
+    // Actualizar estado de conexión
     setState(() {
       isConnected = true;
       statusMessage = "Successfully connected to $platformName";
     });
   }
 
-  /// Lee datos simulados y normaliza
+  /// ============================================
+  /// Lee, normaliza y procesa datos
+  /// ============================================
   Future<void> readAndNormalizeData() async {
     if (!isConnected) {
       setState(() {
@@ -73,40 +106,47 @@ class _SyncScreenState extends State<SyncScreen> {
       statusMessage = "Reading data...";
     });
 
+    //  FASE 6 → Lectura
     final rawData = await HealthReadService.readLast7Days();
+
+    //  FASE 7 → Normalización
     final normalized = HealthNormalizeService.normalize(rawData);
 
-    final today = DateTime.now();
-    final todayString =
-        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-
+    //  AQUÍ ESTÁ LA MEJORA IMPORTANTE
     DailyHealthData? todayEntry;
     List<DailyHealthData> last7Days = [];
 
-    for (var data in normalized) {
-      if (data.date == todayString) {
-        todayEntry = data;
-      } else {
-        last7Days.add(data);
-      }
+    if (normalized.isNotEmpty) {
+      todayEntry = normalized.first; //  hoy
+      last7Days = normalized.skip(1).toList(); //  resto
     }
+
+    //  FASE 8 → Procesamiento
+    final processed = HealthProcessingService.process(normalized);
 
     setState(() {
       todayData = todayEntry;
       normalizedData = last7Days;
-      statusMessage = "Data read and normalized successfully.";
+      processedData = processed;
+      statusMessage = "Data read, normalized and processed successfully.";
     });
   }
 
+  /// ============================================
+  ///  UI
+  /// ============================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sync Screen')),
       body: Padding(
         padding: const EdgeInsets.all(16),
+
+        // Permite scroll si hay muchos datos
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Texto introductorio
               const Text(
                 "Here you can sync your health data.",
                 textAlign: TextAlign.center,
@@ -114,7 +154,7 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 20),
 
-              // 🔹 Botón conexión
+              //  BOTÓN: Inicializar conexión
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -125,7 +165,7 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 20),
 
-              // 🔹 Mensaje de estado
+              //  Mensaje de estado
               Text(
                 statusMessage,
                 style: TextStyle(
@@ -137,7 +177,7 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 20),
 
-              // 🔹 Botón leer datos
+              //  BOTÓN: Leer y normalizar datos
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -148,7 +188,9 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 30),
 
-              // 📌 Datos de hoy
+              // ============================================
+              //  DATOS DE HOY
+              // ============================================
               if (todayData != null) ...[
                 const Text(
                   "📌 Today",
@@ -160,7 +202,9 @@ class _SyncScreenState extends State<SyncScreen> {
                 const SizedBox(height: 20),
               ],
 
-              // 📅 Últimos 7 días
+              // ============================================
+              //  ÚLTIMOS 7 DÍAS
+              // ============================================
               if (normalizedData.isNotEmpty) ...[
                 const Text(
                   "📅 Last 7 days",
@@ -174,7 +218,44 @@ class _SyncScreenState extends State<SyncScreen> {
 
               const SizedBox(height: 30),
 
-              // 🔹 Botón navegación
+              // ============================================
+              //  DATOS PROCESADOS (FASE 8)
+              // ============================================
+              if (processedData.isNotEmpty) ...[
+                const Text(
+                  "📊 Processed Data",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                // Totales
+                Text("Total Steps: ${processedData["total_steps"]}"),
+                Text(
+                  "Total Distance: ${processedData["total_distance_km"]} km",
+                ),
+                Text("Total Calories: ${processedData["total_calories"]}"),
+
+                const SizedBox(height: 10),
+
+                // Promedios
+                Text("Average Steps: ${processedData["average_steps"]}"),
+                Text(
+                  "Average Sleep: ${processedData["average_sleep"].toStringAsFixed(1)} h",
+                ),
+                Text(
+                  "Average Heart Rate: ${processedData["average_heart_rate"]} bpm",
+                ),
+
+                const SizedBox(height: 10),
+
+                // Datos faltantes
+                Text(
+                  "Days with no steps: ${processedData["days_with_no_steps"]}",
+                ),
+              ],
+
+              const SizedBox(height: 30),
+
+              // BOTÓN: Navegar a Results
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

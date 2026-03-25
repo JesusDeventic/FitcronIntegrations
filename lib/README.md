@@ -10,6 +10,7 @@ Actualmente el proyecto incluye:
 - Simulación de conexión con Health APIs (Fase 5)
 - Simulación de lectura de datos (Fase 6)
 - Normalización de datos (Fase 7)
+- Lógica de negocio y procesamiento de datos (Fase 8)
 - Uso de Provider para gestión de estado (base preparada, no utilizada aún para datos de salud)
 
 ---
@@ -26,7 +27,9 @@ Pantallas implementadas:
   - Inicializa conexión simulada
   - Lee datos simulados desde `HealthReadService`
   - Normaliza datos con `HealthNormalizeService`
+  - Procesa datos con `HealthProcessingService`
   - Muestra datos de hoy y últimos 7 días
+  - Muestra métricas procesadas (totales y promedios)
 - `results_screen.dart` → Visualización de resultados (placeholder)
 - `export_screen.dart` → Exportación de datos (placeholder)
 
@@ -37,6 +40,7 @@ Pantallas implementadas:
 - Conexión simulada a plataforma de salud
 - Lectura de datos simulada
 - Normalización de datos a formato uniforme
+- Procesamiento de datos (totales, promedios, control de datos faltantes)
 - Visualización directa de datos en `sync_screen.dart` (sin almacenamiento global)
 - Contenido de resultados y exportación aún en desarrollo
 
@@ -54,6 +58,11 @@ Actualmente:
 - `health_normalize_service.dart` → Normaliza los datos a un formato estándar usando:
   - `HealthUtils` → redondeo y conversiones
   - `DateUtilsCustom` → fechas consistentes
+- `health_processing_service.dart` → Procesa los datos normalizados:
+  - Calcula totales (steps, distance, calories)
+  - Calcula promedios (steps, sleep, heart rate)
+  - Detecta días sin actividad
+  - Aplica redondeo para evitar decimales innecesarios
 
 🔜 Futuro:
 
@@ -101,6 +110,12 @@ Actualmente:
 - `health_utils.dart` → Redondeo de valores y conversión de metros a kilómetros
 - `date_utils.dart` → Manejo y formateo de fechas (YYYY-MM-DD, días atrás)
 
+📌 Objetivo:
+
+- Evitar duplicación de lógica
+- Centralizar conversiones y formateos
+- Mantener consistencia en toda la app
+
 ---
 
 ## 📌 Estado actual del proyecto
@@ -111,11 +126,11 @@ Actualmente:
 ✔️ Fase 4 — Permisos (simulación) → COMPLETADA  
 ✔️ Fase 5 — Conexión simulada → COMPLETADA  
 ✔️ Fase 6 — Lectura de datos simulada → COMPLETADA  
-✔️ Fase 7 — Normalización de datos → COMPLETADA
+✔️ Fase 7 — Normalización de datos → COMPLETADA  
+✔️ Fase 8 — Lógica de negocio → COMPLETADA
 
 🚧 En desarrollo:
 
-- Fase 8 — Lógica de negocio
 - Fase 9 — Visualización avanzada
 - Fase 10 — Exportación JSON
 
@@ -129,11 +144,12 @@ La aplicación ya incluye:
 - Simulación de conexión con plataformas de salud
 - Lectura de datos simulados
 - Normalización de datos en un formato uniforme
+- Procesamiento de datos (totales y promedios)
 - Visualización de datos en la UI para validación
 
 Las siguientes fases integrarán:
 
 - APIs reales (Health Connect / Apple Health)
-- Procesamiento de datos
-- Visualización avanzada
-- Exportación de datos
+- Procesamiento avanzado de datos
+- Visualización avanzada (gráficas y dashboards)
+- Exportación de datos (JSON, etc.)

@@ -1,38 +1,64 @@
-// app_state_provider.dart
-// ======================
-//
-// Este archivo define un ejemplo inicial de gestor de estado para la app
-// utilizando Provider.
-//
-// ⚠️ Nota: Este código es un esquema inicial y sirve solo como ejemplo.
-// En futuras mejoras se añadirá:
-//
-//   • Lectura de datos de Apple Health / Health Connect
-//   • Modelos de datos completos (ActivityData, SleepData, HealthData)
-//   • Gestión de permisos y sincronización
-//   • Funciones para normalizar y exportar datos
-//
-// Por ahora, solo contiene un ejemplo sencillo de cómo manejar datos
-// compartidos entre pantallas y actualizar la UI automáticamente.
+// providers/app_state_provider.dart
 
 import 'package:flutter/material.dart';
+import '../models/daily_health_data.dart';
 
-// Clase principal del estado de la app
+/// Provider que gestiona el estado global de la app
+/// Aquí se almacenan los datos de salud para que puedan ser accedidos
+/// desde cualquier pantalla (ej: ResultsScreen, ExportScreen)
 class AppStateProvider extends ChangeNotifier {
-  // Ejemplo de dato de salud: pasos
-  int steps = 0;
+  // ============================================
+  // Datos que manejamos
+  // ============================================
 
-  // Método para actualizar los pasos
-  // Al llamar a este método, cualquier UI que use este dato se actualizará automáticamente
-  void updateSteps(int newSteps) {
-    steps = newSteps;
-    notifyListeners(); // Notifica a la UI para refrescar los widgets que dependen de este valor
+  /// Datos de hoy (DailyHealthData para hoy)
+  /// Puede ser null si no se han leído los datos todavía
+  DailyHealthData? todayData;
+
+  /// Lista de los últimos 7 días (excluyendo hoy)
+  List<DailyHealthData> last7Days = [];
+
+  /// Datos procesados (totales, promedios, días sin actividad)
+  /// Estructura tipo Map para flexibilidad
+  Map<String, dynamic> processedData = {};
+
+  // ============================================
+  // Actualización de datos
+  // ============================================
+
+  /// Método para actualizar **todos los datos de salud** en la app
+  /// Parámetros:
+  /// - [today] → datos de hoy (DailyHealthData)
+  /// - [last7] → lista de los últimos 7 días
+  /// - [processed] → métricas procesadas (totales, promedios, días sin pasos)
+  ///
+  /// Al actualizar, se llama a `notifyListeners()` para que
+  /// todas las pantallas que usan este provider se redibujen automáticamente
+  void updateHealthData({
+    required DailyHealthData? today,
+    required List<DailyHealthData> last7,
+    required Map<String, dynamic> processed,
+  }) {
+    todayData = today;
+    last7Days = last7;
+    processedData = processed;
+
+    // Notifica a la UI que los datos cambiaron
+    notifyListeners();
   }
 
-  // Futuras propiedades y métodos podrían incluir:
-  // - distancia recorrida
-  // - calorías activas
-  // - datos de sueño
-  // - frecuencia cardíaca
-  // - sincronización con Health APIs
+  // ============================================
+  // 3️⃣ Limpieza de datos
+  // ============================================
+
+  /// Método para limpiar todos los datos de salud
+  /// Útil si el usuario quiere reiniciar la app o desconectarse
+  void clearHealthData() {
+    todayData = null; // Borra los datos de hoy
+    last7Days = []; // Borra los últimos 7 días
+    processedData = {}; // Borra los datos procesados
+
+    // Notifica a la UI para que se actualice automáticamente
+    notifyListeners();
+  }
 }

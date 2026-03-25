@@ -8,14 +8,14 @@
 // - Calcular promedios
 // - Manejar datos faltantes
 // - Uso de HealthUtils para redondeo consistente
-//
-//
+// 
+// 
 //
 // RESULTADO:
 // - Datos listos para UI sin decimales innecesarios
 
 import '../models/daily_health_data.dart';
-import '../utils/health_utils.dart';
+import '../utils/health_utils.dart'; 
 
 class HealthProcessingService {
   static Map<String, dynamic> process(List<DailyHealthData> data) {
@@ -46,7 +46,8 @@ class HealthProcessingService {
 
     // Aplicamos utils para limpiar decimales
     final totalDistanceRounded = HealthUtils.roundDouble(totalDistance, 2);
-    final averageSleep = HealthUtils.roundDouble(totalSleep / validDays, 1);
+    final averageSleep =
+        HealthUtils.roundDouble(totalSleep / validDays, 1);
 
     return {
       // Totales

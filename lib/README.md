@@ -11,7 +11,7 @@ Actualmente el proyecto incluye:
 - Simulación de lectura de datos (Fase 6)
 - Normalización de datos (Fase 7)
 - Lógica de negocio y procesamiento de datos (Fase 8)
-- Uso de Provider para gestión de estado (base preparada, no utilizada aún para datos de salud)
+- Uso de Provider para gestión de estado y datos globales (Fase 9)
 
 ---
 
@@ -30,7 +30,12 @@ Pantallas implementadas:
   - Procesa datos con `HealthProcessingService`
   - Muestra datos de hoy y últimos 7 días
   - Muestra métricas procesadas (totales y promedios)
-- `results_screen.dart` → Visualización de resultados (placeholder)
+  - Guarda los datos en `AppStateProvider` para otras pantallas
+  - Botones para navegar a `ResultsScreen` y `ExportScreen`
+- `results_screen.dart` → Visualización de resultados:
+  - Datos de hoy en cards atractivas
+  - Últimos 7 días en panel expandible
+  - Datos procesados en cards
 - `export_screen.dart` → Exportación de datos (placeholder)
 
 📌 Estado actual:
@@ -41,8 +46,8 @@ Pantallas implementadas:
 - Lectura de datos simulada
 - Normalización de datos a formato uniforme
 - Procesamiento de datos (totales, promedios, control de datos faltantes)
-- Visualización directa de datos en `sync_screen.dart` (sin almacenamiento global)
-- Contenido de resultados y exportación aún en desarrollo
+- Visualización de datos en UI con cards y panel expandible
+- Datos almacenados en Provider para uso en varias pantallas
 
 ---
 
@@ -92,12 +97,12 @@ Gestión de estado de la app usando Provider.
 
 Actualmente:
 
-- `app_state_provider.dart` → Ejemplo básico (pasos)
+- `app_state_provider.dart` → Maneja datos de salud globales (hoy, últimos 7 días y métricas procesadas)
 
 📌 Nota:
 
-- No se utiliza aún para almacenar datos de salud
-- Se integrará en futuras fases
+- Datos de salud ya se almacenan y pueden ser usados en varias pantallas
+- Permite UI reactiva y paneles expandibles
 
 ---
 
@@ -127,11 +132,11 @@ Actualmente:
 ✔️ Fase 5 — Conexión simulada → COMPLETADA  
 ✔️ Fase 6 — Lectura de datos simulada → COMPLETADA  
 ✔️ Fase 7 — Normalización de datos → COMPLETADA  
-✔️ Fase 8 — Lógica de negocio → COMPLETADA
+✔️ Fase 8 — Lógica de negocio → COMPLETADA  
+✔️ Fase 9 — Visualización → COMPLETADA
 
 🚧 En desarrollo:
 
-- Fase 9 — Visualización avanzada
 - Fase 10 — Exportación JSON
 
 ---
@@ -145,7 +150,7 @@ La aplicación ya incluye:
 - Lectura de datos simulados
 - Normalización de datos en un formato uniforme
 - Procesamiento de datos (totales y promedios)
-- Visualización de datos en la UI para validación
+- Visualización de datos en la UI con cards y panel expandible
 
 Las siguientes fases integrarán:
 

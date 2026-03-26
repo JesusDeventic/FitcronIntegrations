@@ -1,21 +1,20 @@
 // screens/export_screen.dart
-// ======================
+// ============================
 //
-// FASE 10 — Exportación JSON + Preview + cuadro de mando + listado de JSON guardados
+// FASE 10 — Exportación JSON
+// Refactorizado para usar ExportService
 //
 // OBJETIVO:
-// - Mantener preview y cuadro de mando
-// - Mostrar todos los datos guardados en SharedPreferences
-// - Mantener navegación de vuelta al inicio
+// - UI limpia
+// - Preview JSON + listado de cada JSON guardado como card
+// - Guardado y carga en SharedPreferences
+// - Botón "Back to Home"
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../providers/app_state_provider.dart';
 import '../models/daily_health_data.dart';
-import '../utils/date_utils.dart';
+import '../services/export_service.dart';
 
 class ExportScreen extends StatefulWidget {
   const ExportScreen({super.key});
@@ -25,83 +24,45 @@ class ExportScreen extends StatefulWidget {
 }
 
 class _ExportScreenState extends State<ExportScreen> {
-  String savedMessage = ""; // Mensaje de estado al usuario
-  String jsonPreview = ""; // Preview del JSON que se va a guardar
-  List<Map<String, dynamic>> savedJsonList = []; // Listado de JSON guardados
+  String savedMessage = "";
+  String jsonPreview = "";
+  List<Map<String, dynamic>> savedJsonList = [];
 
-  /// ============================================
-  /// Convierte un objeto DailyHealthData a JSON
-  /// ============================================
-  Map<String, dynamic> convertToJson(DailyHealthData data) {
-    return {
-      "source": "health_connect",
-      "date": data.date, // Fecha en formato estándar YYYY-MM-DD
-      "steps": data.steps,
-      "distance_km": data.distanceKm,
-      "active_minutes": DateUtilsCustom.hoursToMinutes(data.sleepHours),
-      "calories_active": data.calories,
-      "sleep_minutes": DateUtilsCustom.hoursToMinutes(data.sleepHours),
-    };
-  }
-
-  /// ============================================
-  /// Guarda la lista de JSON en SharedPreferences
-  /// ============================================
-  Future<void> saveJson(List<DailyHealthData> dataList) async {
+  /// Guarda todos los datos usando el servicio
+  Future<void> saveJson(List<DailyHealthData> allData) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // Convertir todos los datos a JSON
-      final jsonList = dataList.map((d) => convertToJson(d)).toList();
-      final jsonString = jsonEncode(jsonList);
-
-      // Guardar en SharedPreferences
-      await prefs.setString("health_data_json", jsonString);
-
+      await ExportService.saveData(allData);
+      savedJsonList = allData.map(ExportService.convertToJson).toList();
       setState(() {
         savedMessage = "✅ Data saved locally";
-        jsonPreview = const JsonEncoder.withIndent('  ').convert(jsonList);
-        savedJsonList = jsonList.cast<Map<String, dynamic>>();
+        jsonPreview = ExportService.prettyPrint(savedJsonList);
       });
-    } catch (e) {
+    } catch (_) {
       setState(() {
         savedMessage = "❌ Error saving data";
       });
     }
   }
 
-  /// ============================================
-  /// Carga JSON previamente guardado
-  /// ============================================
+  /// Carga los JSON previamente guardados
   Future<void> loadJson() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedJsonString = prefs.getString('health_data_json');
-
-    if (savedJsonString != null) {
-      final List<dynamic> jsonDecoded = jsonDecode(savedJsonString);
-      setState(() {
-        savedJsonList = jsonDecoded.cast<Map<String, dynamic>>();
-        jsonPreview = const JsonEncoder.withIndent('  ').convert(savedJsonList);
-      });
-    } else {
-      setState(() {
-        savedMessage = "No JSON saved yet";
-        savedJsonList = [];
-        jsonPreview = "";
-      });
-    }
+    final data = await ExportService.loadData();
+    setState(() {
+      savedJsonList = data;
+      jsonPreview = ExportService.prettyPrint(data);
+      savedMessage = data.isEmpty ? "No JSON saved yet" : "";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final appState = context.watch<AppStateProvider>();
-    final allData = appState.getAllData();
+    final allData = context.watch<AppStateProvider>().getAllData();
 
-    // Generar preview inicial si existe data
+    // Preview inicial si hay datos y no hay guardado
     if (jsonPreview.isEmpty && allData.isNotEmpty) {
-      jsonPreview = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(allData.map((d) => convertToJson(d)).toList());
+      jsonPreview = ExportService.prettyPrint(
+        allData.map(ExportService.convertToJson).toList(),
+      );
     }
 
     return Scaffold(
@@ -116,7 +77,7 @@ class _ExportScreenState extends State<ExportScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Preview JSON en cuadro de mando
+            // Cuadro de mando con preview
             Expanded(
               child: Card(
                 elevation: 4,
@@ -141,7 +102,7 @@ class _ExportScreenState extends State<ExportScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Botón guardar JSON
+            // Botón Guardar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -151,7 +112,7 @@ class _ExportScreenState extends State<ExportScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Botón cargar JSON guardado
+            // Botón Cargar
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -161,7 +122,7 @@ class _ExportScreenState extends State<ExportScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Mensaje de estado
+            // Mensaje estado
             if (savedMessage.isNotEmpty)
               Text(
                 savedMessage,
@@ -173,9 +134,7 @@ class _ExportScreenState extends State<ExportScreen> {
               ),
             const SizedBox(height: 20),
 
-            // ============================================
-            // Listado de todos los JSON guardados
-            // ============================================
+            // Listado de cada JSON guardado como card
             if (savedJsonList.isNotEmpty) ...[
               const Text(
                 "📂 Saved JSON entries:",
@@ -192,7 +151,7 @@ class _ExportScreenState extends State<ExportScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: Text(
-                          const JsonEncoder.withIndent('  ').convert(entry),
+                          ExportService.prettyPrint([entry]),
                           style: const TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 12,
@@ -214,7 +173,7 @@ class _ExportScreenState extends State<ExportScreen> {
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(
                     context,
-                    '/', // selection_screen
+                    '/', // ruta selection_screen
                     (route) => false,
                   );
                 },

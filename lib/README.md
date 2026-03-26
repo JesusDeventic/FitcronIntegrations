@@ -39,8 +39,8 @@ Pantallas implementadas:
 - `export_screen.dart` → Exportación de datos (FASE 10):  
   - Muestra **preview del JSON generado** antes de guardar  
   - Guarda JSON en **SharedPreferences**  
+  - Permite **cargar JSON previamente guardado**  
   - Muestra un **cuadro de mando con los JSON guardados**  
-  - Permite cargar JSON previamente guardado  
   - Botón para volver al inicio  
 
 📌 Estado actual:
@@ -74,6 +74,10 @@ Actualmente:
   - Calcula promedios (steps, sleep, heart rate)  
   - Detecta días sin actividad  
   - Aplica redondeo para evitar decimales innecesarios  
+- `export_service.dart` → Servicio centralizado para:  
+  - Conversión de `DailyHealthData` a JSON  
+  - Guardado y carga en SharedPreferences  
+  - Formateo para mostrar preview o listado  
 
 🔜 Futuro:
 
@@ -170,4 +174,4 @@ Las siguientes fases integrarán:
 - APIs reales (Health Connect / Apple Health)  
 - Procesamiento avanzado de datos  
 - Visualización avanzada (gráficas y dashboards)  
-- Exportación de datos externa (JSON, CSV, etc.)  
+- Exportación de datos externa (JSON, CSV, etc.)

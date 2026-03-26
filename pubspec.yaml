@@ -1,6 +1,6 @@
 name: fitcron_integrations_lab
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.5+1
+  shared_preferences: ^2.3.0 # almacenamiento interno JSON
 
 dev_dependencies:
   flutter_test:

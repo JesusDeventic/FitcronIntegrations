@@ -68,12 +68,18 @@ class ResultsScreen extends StatelessWidget {
     final Map<String, dynamic> processed =
         appState.processedData; // Totales y promedios
 
+    String formatValue(dynamic value, String unit) {
+      if (value == null || value == 0 || value == "0" || value == "0.0") {
+        return "N/A";
+      }
+      return "$value $unit";
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Results Screen')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
-          // Permite scroll vertical si hay muchas cards
           child: Column(
             children: [
               // ============================================
@@ -86,42 +92,40 @@ class ResultsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                // Grid de 2 columnas para mostrar las métricas de hoy
                 GridView.count(
-                  crossAxisCount: 2, // 2 cards por fila
-                  shrinkWrap: true, // Ajusta el tamaño al contenido
-                  physics:
-                      const NeverScrollableScrollPhysics(), // Evita scroll interno
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   children: [
                     buildMetricCard(
                       "Steps",
-                      today.steps.toString(),
+                      today.steps > 0 ? today.steps.toString() : "Not found",
                       Icons.directions_walk,
                       Colors.blue,
                     ),
                     buildMetricCard(
                       "Distance",
-                      "${today.distanceKm} km",
+                      formatValue(today.distanceKm, "km"),
                       Icons.map,
                       Colors.green,
                     ),
                     buildMetricCard(
                       "Sleep",
-                      "${today.sleepHours} h",
+                      formatValue(today.sleepHours, "h"),
                       Icons.bedtime,
                       Colors.purple,
                     ),
                     buildMetricCard(
                       "Calories",
-                      today.calories.toString(),
+                      formatValue(today.calories, "kcal"),
                       Icons.local_fire_department,
                       Colors.orange,
                     ),
                     buildMetricCard(
                       "Heart Rate",
-                      "${today.heartRate} bpm",
+                      formatValue(today.heartRate, "bpm"),
                       Icons.favorite,
                       Colors.red,
                     ),
@@ -139,7 +143,6 @@ class ResultsScreen extends StatelessWidget {
                     "📅 Last 7 Days",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  // Mapeamos cada día a un widget Card
                   children: last7Days.map((day) {
                     return Card(
                       shape: RoundedRectangleBorder(
@@ -149,12 +152,15 @@ class ResultsScreen extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(
                         vertical: 6,
                         horizontal: 16,
-                      ), // Separación de cards
+                      ),
                       child: ListTile(
-                        title: Text(day.date), // Fecha
+                        title: Text(day.date),
                         subtitle: Text(
-                          // Métricas del día
-                          "Steps: ${day.steps}, Distance: ${day.distanceKm} km, Calories: ${day.calories}, Sleep: ${day.sleepHours} h, HR: ${day.heartRate} bpm",
+                          "Steps: ${day.steps > 0 ? day.steps : 'N/A'}, "
+                          "Dist: ${day.distanceKm > 0 ? day.distanceKm : 'N/A'} km, "
+                          "Cal: ${day.calories > 0 ? day.calories : 'N/A'}, "
+                          "Sleep: ${day.sleepHours > 0 ? day.sleepHours : 'N/A'} h, "
+                          "HR: ${day.heartRate > 0 ? day.heartRate : 'N/A'} bpm",
                         ),
                         leading: const Icon(Icons.calendar_today),
                       ),
@@ -180,39 +186,35 @@ class ResultsScreen extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  childAspectRatio: 0.85, // Ajusta proporciones por si el contenido queda estrecho
+                  childAspectRatio: 0.85,
                   children: [
                     buildMetricCard(
                       "Total Steps",
-                      processed["total_steps"].toString(),
+                      formatValue(processed["total_steps"], ""),
                       Icons.directions_walk,
                       Colors.blue,
                     ),
                     buildMetricCard(
                       "Total Distance",
-                      "${processed["total_distance_km"]} km",
+                      formatValue(processed["total_distance_km"], "km"),
                       Icons.map,
                       Colors.green,
                     ),
                     buildMetricCard(
                       "Total Calories",
-                      processed["total_calories"] != null 
-                          ? processed["total_calories"].toString()
-                          : "N/A",
+                      formatValue(processed["total_calories"], "kcal"),
                       Icons.local_fire_department,
                       Colors.orange,
                     ),
                     buildMetricCard(
                       "Avg Sleep",
-                      "${processed["average_sleep"]} h",
+                      formatValue(processed["average_sleep"], "h"),
                       Icons.bedtime,
                       Colors.purple,
                     ),
                     buildMetricCard(
                       "Avg Heart Rate",
-                      processed["average_heart_rate"] != null 
-                          ? "${processed["average_heart_rate"]} bpm"
-                          : "N/A", // Por si en el mock viejo no existía
+                      formatValue(processed["average_heart_rate"], "bpm"),
                       Icons.monitor_heart,
                       Colors.redAccent,
                     ),

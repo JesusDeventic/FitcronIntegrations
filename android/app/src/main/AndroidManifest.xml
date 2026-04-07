@@ -1,45 +1,88 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.fitcron_integrations_lab">
+
+    <!-- 
+      ==========================================================================
+      PERMISOS DE SALUD (SALUD CONNECT)
+      ==========================================================================
+      IMPORTANTE: Para Android 14+ se usan los permisos 'android.permission.health'.
+      Para Android 13 y anteriores se usan los permisos de Google Play Services.
+      Debemos declarar AMBOS para máxima compatibilidad.
+    -->
+
+    <!-- Permisos Estándar (Android 14+) -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+
+    <!-- Permisos Legacy (Android 8-13) (Health Connect App Standalone) -->
+    <uses-permission android:name="com.google.android.gms.permission.health_connect.READ_STEPS" />
+    <uses-permission android:name="com.google.android.gms.permission.health_connect.READ_DISTANCE" />
+    <uses-permission android:name="com.google.android.gms.permission.health_connect.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="com.google.android.gms.permission.health_connect.READ_SLEEP" />
+    <uses-permission android:name="com.google.android.gms.permission.health_connect.READ_HEART_RATE" />
+    
+    <!-- Permiso de Actividad Física (Necesario para el sensor de movimiento local) -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
     <application
         android:label="fitcron_integrations_lab"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-            <!-- Specifies an Android theme to apply to this Activity as soon as
-                 the Android process has started. This theme is visible to the user
-                 while the Flutter UI initializes. After that, this theme continues
-                 to determine the Window background behind the Flutter UI. -->
+            
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
+              android:resource="@style/NormalTheme" />
+
+            <!-- 
+              ESTE FILTRO ES OBLIGATORIO PARA SALUD CONNECT.
+              Permite que la app de Salud Connect muestre por qué pedimos los permisos.
+            -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+
+            <!-- Permite la visualización de datos de Salud Connect desde la App oficial -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="healthconnect" android:host="com.google.android.apps.healthdata" />
+            </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+
+        <!-- Apunta a la Actividad que explica los permisos (nuestra MainActivity) -->
+        <meta-data android:name="health_permissions_rationale_activity"
+            android:value="com.example.fitcron_integrations_lab.MainActivity" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-    <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package-visibility and
-         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
-         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <!-- Permite a nuestra app saber si la app de Salud Connect está instalada en el móvil -->
+        <package android:name="com.google.android.apps.healthdata" />
         <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 </manifest>

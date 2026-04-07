@@ -12,7 +12,10 @@
 // Todavía NO conectamos APIs reales, solo mostramos información
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../services/platform_service.dart';
+import '../providers/app_state_provider.dart';
 
 class SelectionScreen extends StatelessWidget {
   const SelectionScreen({super.key});
@@ -49,14 +52,38 @@ class SelectionScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-            /// Botón para continuar a permisos
-            ElevatedButton(
+            /// Botón: DATOS SIMULADOS
+            ElevatedButton.icon(
+              icon: const Icon(Icons.developer_mode),
+              label: const Text('Simulated Data'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+              ),
               onPressed: () {
+                // Indicamos al provider que usamos datos simulados
+                Provider.of<AppStateProvider>(context, listen: false).setDataSource(false);
                 Navigator.pushNamed(context, '/permissions');
               },
-              child: const Text('Go to Permissions'),
+            ),
+
+            const SizedBox(height: 15),
+
+            /// Botón: DATOS REALES (Health Connect / HealthKit)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.monitor_heart),
+              label: const Text('Real Data'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              onPressed: () {
+                // Indicamos al provider que usamos datos REALES
+                Provider.of<AppStateProvider>(context, listen: false).setDataSource(true);
+                Navigator.pushNamed(context, '/permissions');
+              },
             ),
           ],
         ),

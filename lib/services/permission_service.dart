@@ -30,7 +30,11 @@ class PermissionService {
     return _status;
   }
 
-  /// Simular aceptar permisos
+  /// Simular o Marcar permisos como aceptados
+  /// 
+  /// NOTA: En la integración real, llamamos a este método después de que 
+  /// el sistema nativo nos confirma la autorización. Esto es vital para 
+  /// que la pantalla de sincronización (SyncScreen) sepa que puede conectarse.
   static void grantPermission() {
     _status = PermissionStatus.granted;
   }

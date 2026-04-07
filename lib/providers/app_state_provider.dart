@@ -22,6 +22,17 @@ class AppStateProvider extends ChangeNotifier {
   // Datos procesados
   Map<String, dynamic> processedData = {};
 
+  // ============================================
+  // NUEVO (FASE DE DATOS REALES)
+  // Flag para saber si usamos datos simulados o reales
+  // ============================================
+  bool useRealData = false;
+
+  void setDataSource(bool isReal) {
+    useRealData = isReal;
+    notifyListeners();
+  }
+
   /// ============================================
   /// Actualiza todos los datos de salud
   /// ============================================

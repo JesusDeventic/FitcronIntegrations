@@ -4,6 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>We need access to your health data to monitor your daily activity (steps, sleep, etc.) and provide personalized results.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>We need access to your health data to monitor your daily activity (steps, sleep, etc.) and provide personalized results.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

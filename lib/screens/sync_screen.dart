@@ -30,6 +30,7 @@ import '../services/platform_service.dart';
 import '../services/health_read_service.dart';
 import '../services/health_normalize_service.dart';
 import '../services/health_processing_service.dart';
+import '../services/real_health_service.dart';
 
 // Modelo
 import '../models/daily_health_data.dart';
@@ -101,15 +102,41 @@ class _SyncScreenState extends State<SyncScreen> {
       return;
     }
 
+    final appState = context.read<AppStateProvider>();
+    final bool useRealData = appState.useRealData;
+
     setState(() {
-      statusMessage = "Reading data...";
+      statusMessage = useRealData ? "Reading real data from smartwatch..." : "Reading simulated data...";
     });
 
-    // FASE 6 → Lectura
-    final rawData = await HealthReadService.readLast7Days();
+    List<DailyHealthData> normalized = [];
 
-    // FASE 7 → Normalización
-    final normalized = HealthNormalizeService.normalize(rawData);
+    if (useRealData) {
+      // --- INTERFAZ CON DATOS REALES ---
+      try {
+        // Obtenemos los últimos 7 días pidiendo datos uno por uno a Salud Connect.
+        // El bucle retrocede desde 'hoy' (0) hasta 6 días atrás.
+        for (int i = 0; i < 7; i++) {
+          final date = DateTime.now().subtract(Duration(days: i));
+          
+          // RealHealthService consulta el plugin nativo 'health'
+          final rawDay = await RealHealthService.getDailyData(date);
+          
+          // Transformamos el Mapa crudo en nuestra clase modelo DailyHealthData
+          normalized.add(DailyHealthData.fromMap(rawDay));
+        }
+      } catch (e) {
+        setState(() {
+          statusMessage = "Ups! Error al leer del reloj: $e";
+        });
+        return;
+      }
+    } else {
+      // --- MODO SIMULACIÓN ---
+      // Caso original (Fase 6 y 7): Lectura de listas estáticas en memoria
+      final rawData = await HealthReadService.readLast7Days();
+      normalized = HealthNormalizeService.normalize(rawData);
+    }
 
     DailyHealthData? todayEntry;
     List<DailyHealthData> last7Days = [];
@@ -127,12 +154,11 @@ class _SyncScreenState extends State<SyncScreen> {
       todayData = todayEntry;
       normalizedData = last7Days;
       processedData = processed;
-      statusMessage = "Data read, normalized and processed successfully.";
+      statusMessage = "Data sync completed successfully (${useRealData ? 'Real' : 'Simulated'}).";
     });
 
     // 🔹 Actualizar Provider para ResultsScreen
     if (todayEntry != null) {
-      final appState = context.read<AppStateProvider>();
       appState.updateHealthData(
         today: todayEntry,
         last7: last7Days,

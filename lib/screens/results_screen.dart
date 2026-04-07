@@ -102,6 +102,12 @@ class ResultsScreen extends StatelessWidget {
                       Colors.blue,
                     ),
                     buildMetricCard(
+                      "Distance",
+                      "${today.distanceKm} km",
+                      Icons.map,
+                      Colors.green,
+                    ),
+                    buildMetricCard(
                       "Sleep",
                       "${today.sleepHours} h",
                       Icons.bedtime,
@@ -174,6 +180,7 @@ class ResultsScreen extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
+                  childAspectRatio: 0.85, // Ajusta proporciones por si el contenido queda estrecho
                   children: [
                     buildMetricCard(
                       "Total Steps",
@@ -188,16 +195,26 @@ class ResultsScreen extends StatelessWidget {
                       Colors.green,
                     ),
                     buildMetricCard(
-                      "Avg Steps",
-                      processed["average_steps"].toString(),
-                      Icons.directions_walk,
-                      Colors.teal,
+                      "Total Calories",
+                      processed["total_calories"] != null 
+                          ? processed["total_calories"].toString()
+                          : "N/A",
+                      Icons.local_fire_department,
+                      Colors.orange,
                     ),
                     buildMetricCard(
                       "Avg Sleep",
                       "${processed["average_sleep"]} h",
                       Icons.bedtime,
                       Colors.purple,
+                    ),
+                    buildMetricCard(
+                      "Avg Heart Rate",
+                      processed["average_heart_rate"] != null 
+                          ? "${processed["average_heart_rate"]} bpm"
+                          : "N/A", // Por si en el mock viejo no existía
+                      Icons.monitor_heart,
+                      Colors.redAccent,
                     ),
                   ],
                 ),
